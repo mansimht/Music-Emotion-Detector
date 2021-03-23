@@ -22,6 +22,8 @@ Suprasegmental features are the foundational structures of a piece, such as mel
 There are a number of specific musical features that are highly associated with particular emotions.
 Within the factors affecting emotional expression in music, tempo is typically regarded as the most important, but a number of other factors, such as mode, loudness, and melody, also influence the emotional valence of the piece.
 
+![image](https://user-images.githubusercontent.com/28613736/112185768-8997b980-8c26-11eb-905d-5364c6c86777.png)
+
 
 **Refrences:**
 
