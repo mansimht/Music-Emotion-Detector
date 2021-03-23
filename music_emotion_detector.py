@@ -7,52 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/16E4OYf7Al8ggi4zk-vWrEU7Po07kPZht
 """
 
-from google.colab import files
-uploaded= files.upload()
-
-!pip install -q kaggle
-
-!mkdir ~/.kaggle
-
-# upload kaggle.json file in colab directly
-!cp kaggle.json ~/.kaggle/
-
-!chmod 600 ~/.kaggle/kaggle.json
-
-!kaggle datasets list
-
-# Import OS for navigation and environment set up
-import os
-
-# Enable the Kaggle environment, use the path to the directory your Kaggle API JSON is stored in
-os.environ['KAGGLE_CONFIG_DIR'] = '/content'
-
-!kaggle datasets download -d mansimht/msicvocaldataset
-
-!kaggle datasets download -d ddmasterdon/deam-songs
-
-!kaggle datasets download -d abhaybhadoriya/6001200
-
-import zipfile
-
-zip_ref = zipfile.ZipFile("/content/msicvocaldataset.zip", 'r')
-zip_ref.extractall("/content/msicvocaldataset")
-zip_ref.close()
-
-import zipfile
-
-zip_ref = zipfile.ZipFile("/content/deam-songs.zip", 'r')
-zip_ref.extractall("/content/deam-songs")
-zip_ref.close()
-
-import zipfile
-
-zip_ref = zipfile.ZipFile("/content/6001200.zip", 'r')
-zip_ref.extractall("/content/6001200")
-zip_ref.close()
-
-!pip install spleeter
-
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -146,31 +100,6 @@ for root,dirnames,filenames in os.walk('/content/songs'):
   for files in tqdm(filenames):
     if  re.search('^\s*[0-9]',files):
       music.append(root + '/' +files)
-
-len(music)
-
-music
-
-for root,dirnames,filenames in os.walk('/content/6001200/songs600-1200/content/songs'):
-  name= root.split('/')[-1]
-  for files in tqdm(filenames):
-    #vocal=files.split('.')[0]
-    if files.startswith('accompaniment'):
-      fname= root + '_' +files
-      #print(fname)
-      #print(os.path.join(root,files))
-      shutil.copy(os.path.join(root,files),fname)
-
-import re
-music1=[]
-for root,dirnames,filenames in os.walk('/content/6001200/songs600-1200/content/songs'):
-  for files in tqdm(filenames):
-    if  re.search('^\s*[0-9]',files):
-      music1.append(root + '/' +files)
-
-len(music1)
-
-music1
 
 def extract_feature(path):
     id = 1  # Song ID
@@ -394,12 +323,7 @@ def extract_feature(path):
     feature_set.to_csv('Emotion_features.csv')
     feature_set.to_json('Emotion_features.json')
 
-extract_feature(music1)
-
 extract_feature(music)
-
-from google.colab import files
-files.download("/content/Emotion_features.csv")
 
 """# **Processing of Labels**"""
 
@@ -408,14 +332,6 @@ arousal.head(5)
 
 valence= pd.read_csv('/content/valence.csv')
 valence.head(5)
-
-arousal_new= arousal.mean(axis=1,skipna=True)
-arousal_new
-
-valence_new= valence.mean(axis=1,skipna=True)
-valence_new
-
-
 
 import re
 ar_lst1=[]
@@ -434,64 +350,25 @@ for root,dirnames,filenames in os.walk('/content/msicvocaldataset/content/songs'
         val_final= valence.loc[valence['song_id']==id]
         val_lst1.append(val_final)
 
-import re
-ar_lst2=[]
-val_lst2=[]
-for root,dirnames,filenames in os.walk('/content/deam-songs/content/songs'):
-  name= root.split('/')[-1]
-  for files in filenames:
-    if files.startswith('accompaniment'):
-      audio= root+files
-      name= audio.split('/')[5].split('.')[0]
-      s_id = re.findall(r'\d+', name)
-      for id in s_id:
-        id= int(id)
-        ar_final= arousal.loc[arousal['song_id']==id]
-        ar_lst2.append(ar_final)
-        val_final= valence.loc[valence['song_id']==id]
-        val_lst2.append(val_final)
-
-arousal_final1= pd.DataFrame()
-arousal_final1= pd.concat(ar_lst1)
-print(arousal_final1.shape)
-arousal_final1
-
-arousal_final2= pd.DataFrame()
-arousal_final2= pd.concat(ar_lst2)
-print(arousal_final2.shape)
-arousal_final2
-
-arousal_final= pd.concat([arousal_final1,arousal_final2])
-arousal_final
+arousal_final= pd.DataFrame()
+arousal_final= pd.concat(ar_lst1)
+print(arousal_final.shape)
 
 arousal_new= arousal_final.mean(axis=1,skipna=True)
-arousal_new
+print(arousal_new.head(10))
 
-valence_final1= pd.DataFrame()
-valence_final1= pd.concat(val_lst1)
-print(valence_final1.shape)
-valence_final1
-
-valence_final2= pd.DataFrame()
-valence_final2= pd.concat(val_lst2)
-print(valence_final2.shape)
-valence_final2
-
-valence_final= pd.concat([valence_final1,valence_final2])
-valence_final
+valence_final= pd.DataFrame()
+valence_final= pd.concat(val_lst1)
+print(valence_final.shape)
 
 valence_new= valence_final.mean(axis=1,skipna=True)
-valence_new
+print(valence_new.head(10))
 
 new_df= pd.DataFrame(columns=['song_id','arousal','valence'])
 new_df['song_id']= valence_final.iloc[:,0]
 new_df['arousal']= arousal_new
 new_df['valence']= valence_new
 new_df
-
-new_df['arousal'].min()
-
-new_df['valence'].max()
 
 """Extract feeling from arosual and valence:
 
@@ -526,20 +403,9 @@ new_df.dtypes
 new_df= new_df.drop(['arousal','valence'],axis=1)
 new_df
 
-Emotion_features1= pd.read_csv('/content/Emotion_features-final.csv')
-Emotion_features1= Emotion_features1.drop(['Unnamed: 0'],axis=1)
-Emotion_features1
-
-Emotion_features2= pd.read_csv('/content/Emotion_features (7).csv')
-Emotion_features2= Emotion_features2.drop(['Unnamed: 0'],axis=1)
-Emotion_features2
-
-Emotion_features3= pd.read_csv('/content/Emotion_features (8).csv')
-Emotion_features3= Emotion_features3.drop(['Unnamed: 0'],axis=1)
-Emotion_features3
-
-Emotion_features= pd.concat([Emotion_features1,Emotion_features2])
-Emotion_features
+Emotion_features= pd.read_csv('/content/Emotion_features-final.csv')
+Emotion_features1= Emotion_features.drop(['Unnamed: 0'],axis=1)
+print(Emotion_features.head(10))
 
 # Emotion_features=Emotion_features.drop_duplicates(['song_id'], keep=False)
 # Emotion_features
@@ -548,7 +414,7 @@ combined_df= pd.merge(Emotion_features,new_df,on='song_id')
 print(combined_df.shape)
 combined_df=combined_df.drop_duplicates(['song_id'], keep=False)
 print(combined_df.shape)
-combined_df.head(10)
+print(combined_df.head(10))
 
 # # visualize the target variable
 
@@ -739,8 +605,6 @@ def extract(path):
     frame_var = pd.Series()
     
     
-   
-
     # Reading Song
     songname = path   
     #name= songname.split('/')[4].split('_')[0]
